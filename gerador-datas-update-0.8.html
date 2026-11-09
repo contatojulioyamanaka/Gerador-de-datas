@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treino de Calendário Gregoriano</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+            --border: #334155;
+        }
+
+        /* Temas Pastéis */
+        body.theme-azul {
+            --bg-color: #f0f7ff;
+            --card-bg: #ffffff;
+            --text-primary: #1e3a8a;
+            --text-secondary: #64748b;
+            --accent: #93c5fd;
+            --accent-hover: #60a5fa;
+            --border: #bfdbfe;
+        }
+
+        body.theme-rosa {
+            --bg-color: #fff1f2;
+            --card-bg: #ffffff;
+            --text-primary: #881337;
+            --text-secondary: #71717a;
+            --accent: #fbcfe8;
+            --accent-hover: #f472b6;
+            --border: #fecdd3;
+        }
+
+        body.theme-amarelo {
+            --bg-color: #fefce8;
+            --card-bg: #ffffff;
+            --text-primary: #713f12;
+            --text-secondary: #71717a;
+            --accent: #fef08a;
+            --accent-hover: #facc15;
+            --border: #fde047;
+        }
+
+        body.theme-verde {
+            --bg-color: #f0fdf4;
+            --card-bg: #ffffff;
+            --text-primary: #14532d;
+            --text-secondary: #71717a;
+            --accent: #bbf7d0;
+            --accent-hover: #4ade80;
+            --border: #86efac;
+        }
+
+        body.theme-escuro {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --border: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--card-bg);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--border);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            position: relative;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .btn-gear {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            width: 38px;
+            height: 38px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .btn-gear:hover {
+            background-color: var(--border);
+            transform: rotate(30deg);
+        }
+
+        .settings-menu {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+            z-index: 10;
+            width: 220px;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .settings-menu.active {
+            display: flex;
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .setting-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .theme-selector, .century-selector {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 7px 10px;
+            font-size: 0.8rem;
+            outline: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .stats-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .stats-panel {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2px;
+            text-align: center;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 8px 4px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .btn-reset {
+            background-color: var(--bg-color);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            width: 40px;
+            height: 100%;
+            min-height: 48px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .btn-reset:hover {
+            background-color: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+
+        .history-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 12px;
+            min-height: 16px;
+        }
+
+        .history-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--border);
+            transition: transform 0.2s;
+        }
+
+        .history-dot.correct {
+            background-color: var(--success);
+        }
+
+        .history-dot.incorrect {
+            background-color: #ef4444;
+        }
+
+        .card {
+            background-color: var(--bg-color);
+            border-radius: 16px;
+            padding: 18px;
+            text-align: center;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .date-display {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            word-break: break-word;
+        }
+
+        .placeholder-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .timer-display {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .answer-box {
+            margin-top: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--success);
+            display: none;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .date-input {
+            flex: 1;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin-bottom: 2px;
+        }
+
+        .days-grid {
+            display: none;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        .days-grid .btn:nth-last-child(1):nth-child(odd) {
+            grid-column: span 2;
+        }
+
+        .days-grid .btn {
+            padding: 16px 10px;
+            font-size: 0.95rem;
+        }
+
+        .btn {
+            background-color: var(--accent);
+            color: var(--text-primary);
+            border: none;
+            border-radius: 12px;
+            padding: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            width: 100%;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-sprint {
+            background-color: #f59e0b;
+            color: #ffffff;
+        }
+        .btn-sprint:hover {
+            background-color: #d97706;
+        }
+
+        .btn-review {
+            background-color: #8b5cf6;
+            color: #ffffff;
+        }
+        .btn-review:hover {
+            background-color: #7c3aed;
+        }
+
+        .btn-reveal {
+            background-color: var(--accent);
+            opacity: 0.9;
+        }
+        .btn-reveal:hover {
+            opacity: 1;
+        }
+
+        .shortcut-hint {
+            font-size: 0.65rem;
+            opacity: 0.6;
+            display: block;
+            margin-top: 2px;
+        }
+
+        /* Caixa Explicativa dos Métodos */
+        .guide-box {
+            margin-top: 20px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .guide-box h2 {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .guide-box h3 {
+            font-size: 0.85rem;
+            color: var(--accent);
+            margin-top: 12px;
+            margin-bottom: 6px;
+        }
+
+        .guide-box ol, .guide-box ul {
+            padding-left: 18px;
+            margin-bottom: 8px;
+        }
+
+        .guide-box li {
+            margin-bottom: 3px;
+        }
+
+        .guide-box code {
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        .guide-example {
+            background-color: var(--card-bg);
+            border-left: 3px solid var(--accent);
+            padding: 8px 10px;
+            border-radius: 4px;
+            margin-top: 6px;
+            color: var(--text-primary);
+        }
+
+        .method-source {
+            font-size: 0.75rem;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .method-source a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .method-source a:hover {
+            text-decoration: underline;
+        }
+
+        .method-divider {
+            border: 0;
+            height: 1px;
+            background: var(--border);
+            margin: 16px 0;
+        }
+    </style>
+</head>
+<body class="theme-escuro">
+
+    <div class="app-container">
+        <div class="header-top">
+            <h1>Calendário Gregoriano</h1>
+            
+            <button class="btn-gear" onclick="toggleSettingsMenu(event)" title="Configurações">⚙️</button>
+
+            <div id="settingsMenu" class="settings-menu" onclick="event.stopPropagation()">
+                <div class="setting-group">
+                    <span class="setting-label">Filtro de Anos</span>
+                    <select id="centurySelect" class="century-selector">
+                        <option value="all">Séc. XX & XXI</option>
+                        <option value="20">Século XX</option>
+                        <option value="21">Século XXI</option>
+                        <option value="leap">Apenas Bissextos</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <span class="setting-label">Tema Visual</span>
+                    <select id="themeSelect" class="theme-selector" onchange="changeTheme()">
+                        <option value="theme-escuro">Escuro</option>
+                        <option value="theme-azul">Azul</option>
+                        <option value="theme-rosa">Rosa</option>
+                        <option value="theme-amarelo">Amarelo</option>
+                        <option value="theme-verde">Verde</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Painel de Estatísticas -->
+        <div class="stats-container">
+            <div class="stats-panel">
+                <div class="stat-item">
+                    <span id="stat-accuracy" class="stat-value">0%</span>
+                    <span class="stat-label">Acertos</span>
+                </div>
+                <div class="stat-item">
+                    <span id="stat-streak" class="stat-value">0</span>
+                    <span class="stat-label">Sequência</span>
+                </div>
+                <div class="stat-item">
+                    <span id="stat-avg-time" class="stat-value">0.0s</span>
+                    <span class="stat-label">Média</span>
+                </div>
+                <div class="stat-item">
+                    <span id="stat-total" class="stat-value">0</span>
+                    <span class="stat-label">Total</span>
+                </div>
+            </div>
+            <button class="btn-reset" onclick="resetStats()" title="Zerar estatísticas">🗑️</button>
+        </div>
+
+        <!-- Mini-Histórico Visual -->
+        <div class="history-bar" id="historyBar">
+            <span style="font-size: 0.75rem; color: var(--text-secondary);">Últimas tentativas aparecerão aqui</span>
+        </div>
+
+        <div class="card">
+            <div id="timer-display" class="timer-display" style="display: none;">Tempo: 0.0s</div>
+            <div id="content-display" class="placeholder-text">Pressione [Espaço] ou clique abaixo</div>
+            <div id="answer-display" class="answer-box"></div>
+        </div>
+
+        <div class="input-section">
+            <input type="text" id="manual-date" class="date-input" placeholder="Ex: 09/03/2026 (Enter)" onkeypress="handleKeyPress(event)">
+            <button class="btn" style="width: auto; padding: 10px 14px;" onclick="setManualDate()">Calcular</button>
+        </div>
+
+        <!-- Botões com Atalhos Numéricos de 1 a 7 -->
+        <div class="days-grid" id="guess-container">
+            <button class="btn" onclick="checkGuess('Domingo')">1. Domingo</button>
+            <button class="btn" onclick="checkGuess('Segunda-feira')">2. Segunda</button>
+            <button class="btn" onclick="checkGuess('Terça-feira')">3. Terça</button>
+            <button class="btn" onclick="checkGuess('Quarta-feira')">4. Quarta</button>
+            <button class="btn" onclick="checkGuess('Quinta-feira')">5. Quinta</button>
+            <button class="btn" onclick="checkGuess('Sexta-feira')">6. Sexta</button>
+            <button class="btn" onclick="checkGuess('Sábado')">7. Sábado</button>
+        </div>
+
+        <div style="height: 2px;"></div>
+
+        <div class="btn-grid">
+            <button class="btn" onclick="generateDate()">Gerar Data Aleatória <span class="shortcut-hint">[Barra de Espaço]</span></button>
+            <button class="btn btn-sprint" onclick="startSprintMode()">⚡ Iniciar Sprint (60s)</button>
+            <button class="btn btn-review" id="btnReview" onclick="startReviewMode()">📚 Revisar Erros (0)</button>
+            <button class="btn btn-reveal" onclick="revealAnswer()">Revelar Resposta <span class="shortcut-hint">[Tecla R]</span></button>
+        </div>
+
+        <!-- Caixa Explicativa dos Métodos -->
+        <div class="guide-box">
+            <h2>🧠 Métodos de Cálculo Mental</h2>
+
+            <h3>Método JC</h3>
+            <p class="method-source">📹 <b>Fonte:</b> Canal <i>Plínio FM</i> — <a href="http://www.youtube.com/watch?v=KfhXxNZXCIA" target="_blank" rel="noopener">Assistir ao vídeo "Dia da Semana de Cabeça - Aprenda"</a> [00:00:18]</p>
+            <p style="margin-bottom: 6px;">Cálculo estruturado no formato <code>DD/MM/AAAA</code>:</p>
+            <ol>
+                <li><b>Janeiro ou Fevereiro:</b> Se for janeiro ou fevereiro, considere o ano anterior (ex: 20/01/2026 vira 2025).</li>
+                <li><b>Ciclo de bissextos (A34):</b> Seja <code>A34</code> os últimos dois dígitos do ano. Pegue o resto da divisão de <code>A34</code> por 20 e faça a divisão inteira por 4.</li>
+                <li><b>Quarto dígito (a4):</b> Some o resultado anterior com o quarto dígito do ano (<code>a4</code>).</li>
+                <li><b>Dobro do terceiro dígito (a3):</b> Some o dobro do terceiro dígito do ano (<code>a3</code>).</li>
+                <li><b>Ajuste de ímpar:</b> Se o terceiro dígito (<code>a3</code>) for ímpar, some +1.</li>
+                <li><b>Âncora do século:</b> Some o resto da divisão por 4 dos dois primeiros dígitos do ano, multiplicado por 5. <i>Ex: para 2026 (dígitos 20), 20 mod 4 = 0 × 5 = 0</i>.</li>
+                <li><b>Tabela do Mês:</b><br>
+                    <code>Jan=1 | Fev=4 | Mar=3 | Abr=6 | Mai=1 | Jun=4</code><br>
+                    <code>Jul=6 | Ago=2 | Set=5 | Out=0 | Nov=3 | Dez=5</code>
+                </li>
+                <li><b>Valor do Dia:</b> Some o valor do dia (ex: dia 9 some 9).</li>
+            </ol>
+
+            <p style="margin-top: 6px; font-size: 0.75rem;">⚡ <b>Dica de agilidade:</b> Sempre que o resultado de cada passo passar de um múltiplo de 7, simplifique (ex: 9=2, 15=1, 24=3).</p>
+
+            <p style="margin-top: 6px;"><b>Tabela do Dia da Semana:</b><br>
+                <code>Sábado=0 | Domingo=1 | Segunda=2 | Terça=3 | Quarta=4 | Quinta=5 | Sexta=6</code>
+            </p>
+
+            <div class="guide-example">
+                <b>💡 Exemplo no Método JC (20/01/2026):</b><br>
+                1. Jan → usa ano 2025 (a3 = 2, a4 = 5, A34 = 25)<br>
+                2. A34 (25) mod 20 = 5 → 5 // 4 = <code>1</code><br>
+                3. + quarto dígito (a4 = 5) → 1 + 5 = <code>6</code><br>
+                4. + dobro do terceiro dígito (a3 = 2 → dobro = 4) → 6 + 4 = 10 ≡ <code>3</code><br>
+                5. Terceiro dígito (a3 = 2) é par → <code>+0</code> (continua 3)<br>
+                6. 20 mod 4 = 0 × 5 = <code>0</code><br>
+                7. Mês Jan = <code>1</code> → acumulado: 3 + 1 = 4<br>
+                8. Dia 20 ≡ <code>6</code> → acumulado: 4 + 6 = 10 ≡ <code>3</code><br>
+                <b>Resultado: 3 = Terça-feira</b>
+            </div>
+
+            <hr class="method-divider">
+
+            <h3>Método Doomsday (Dia do Juízo Final)</h3>
+            <p>Soma-se os códigos: <code>(Dia + Mês + Ano + Século) mod 7</code>.</p>
+            <p style="margin-top:4px;">Resultados: <b>0=Dom, 1=Seg, 2=Ter, 3=Qua, 4=Qui, 5=Sex, 6=Sáb</b>.</p>
+
+            <p style="margin-top: 6px;"><b>1. Século:</b> 1900s = <code>0</code> | 2000s = <code>6</code></p>
+            <p><b>2. Ano (YY):</b> <code>[YY + (YY ÷ 4)] mod 7</code></p>
+            <p><b>3. Meses:</b> <code>0, 3, 3, 6, 1, 4, 6, 2, 5, 0, 3, 5</code> (Jan a Dez)</p>
+        </div>
+    </div>
+
+    <script>
+        const diasSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+        let currentDateData = null;
+        let startTime = null;
+        let timerInterval = null;
+        let elapsedTime = 0;
+        let userSelectedTheme = "theme-escuro";
+
+        let isSprintActive = false;
+        let sprintTimeLeft = 60;
+        let sprintInterval = null;
+        let sprintScore = 0;
+
+        let isReviewActive = false;
+
+        let stats = {
+            total: 0,
+            correct: 0,
+            streak: 0,
+            totalTimeCorrect: 0,
+            history: [],
+            errorsList: []
+        };
+
+        function toggleSettingsMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById("settingsMenu");
+            menu.classList.toggle("active");
+        }
+
+        document.addEventListener('click', () => {
+            const menu = document.getElementById("settingsMenu");
+            if (menu && menu.classList.contains("active")) {
+                menu.classList.remove("active");
+            }
+        });
+
+        function loadStats() {
+            const saved = localStorage.getItem("calendar_stats_gear");
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    stats = { ...stats, ...parsed };
+                    if (!stats.errorsList) stats.errorsList = [];
+                } catch(e) {}
+            }
+            updateStatsDisplay();
+        }
+
+        function saveStats() {
+            localStorage.setItem("calendar_stats_gear", JSON.stringify(stats));
+            updateStatsDisplay();
+        }
+
+        function resetStats() {
+            if (confirm("Deseja realmente zerar todas as estatísticas e lista de erros?")) {
+                stats = {
+                    total: 0,
+                    correct: 0,
+                    streak: 0,
+                    totalTimeCorrect: 0,
+                    history: [],
+                    errorsList: []
+                };
+                saveStats();
+            }
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById("stat-total").innerText = stats.total;
+            document.getElementById("stat-streak").innerText = stats.streak;
+            
+            const accuracy = stats.total > 0 ? ((stats.correct / stats.total) * 100).toFixed(0) + "%" : "0%";
+            document.getElementById("stat-accuracy").innerText = accuracy;
+
+            const avgTime = stats.correct > 0 ? (stats.totalTimeCorrect / stats.correct).toFixed(1) + "s" : "0.0s";
+            document.getElementById("stat-avg-time").innerText = avgTime;
+
+            const reviewBtn = document.getElementById("btnReview");
+            reviewBtn.innerText = `📚 Revisar Erros (${stats.errorsList.length})`;
+
+            const historyBar = document.getElementById("historyBar");
+            if (stats.history.length === 0) {
+                historyBar.innerHTML = '<span style="font-size: 0.75rem; color: var(--text-secondary);">Últimas tentativas aparecerão aqui</span>';
+            } else {
+                historyBar.innerHTML = stats.history.map(isCorrect => `
+                    <div class="history-dot ${isCorrect ? 'correct' : 'incorrect'}" title="${isCorrect ? 'Acerto' : 'Erro'}"></div>
+                `).join('');
+            }
+        }
+
+        loadStats();
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function changeTheme() {
+            const select = document.getElementById("themeSelect");
+            userSelectedTheme = select.value;
+            if (!currentDateData || !(currentDateData.day === 9 && currentDateData.month === 3)) {
+                document.body.className = userSelectedTheme;
+            }
+        }
+
+        function isLeapYear(year) {
+            return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+        }
+
+        function applyDateLogic(year, month, day, formattedText) {
+            const dateObj = new Date(year, month - 1, day);
+            if (dateObj.getFullYear() !== year || dateObj.getMonth() !== month - 1 || dateObj.getDate() !== day) {
+                if (!isSprintActive && !isReviewActive) alert("Data inválida! Verifique o dia, mês e ano informados.");
+                return false;
+            }
+
+            const dayOfWeek = diasSemana[dateObj.getDay()];
+
+            currentDateData = {
+                day: day,
+                month: month,
+                year: year,
+                text: formattedText,
+                answer: dayOfWeek,
+                active: true
+            };
+
+            if (day === 9 && month === 3) {
+                document.body.className = "theme-rosa";
+            } else {
+                document.body.className = userSelectedTheme;
+            }
+
+            const display = document.getElementById("content-display");
+            display.className = "date-display";
+            display.innerText = currentDateData.text;
+
+            const answerBox = document.getElementById("answer-display");
+            answerBox.style.display = "none";
+            answerBox.innerText = "";
+
+            document.getElementById("guess-container").style.display = "grid";
+
+            startTime = Date.now();
+            const timerDisplay = document.getElementById("timer-display");
+            timerDisplay.style.display = "block";
+            
+            if (!isSprintActive) {
+                timerDisplay.innerText = "Tempo: 0.0s";
+                if (timerInterval) clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    const now = Date.now();
+                    elapsedTime = ((now - startTime) / 1000).toFixed(1);
+                    timerDisplay.innerText = `Tempo: ${elapsedTime}s`;
+                }, 100);
+            }
+
+            return true;
+        }
+
+        function generateDate() {
+            isReviewActive = false;
+            const filterType = document.getElementById("centurySelect").value;
+            let year;
+
+            if (filterType === "20") {
+                year = getRandomInt(1900, 1999);
+            } else if (filterType === "21") {
+                year = getRandomInt(2000, 2100);
+            } else if (filterType === "leap") {
+                do {
+                    year = getRandomInt(1900, 2100);
+                } while (!isLeapYear(year));
+            } else {
+                year = getRandomInt(1900, 2100);
+            }
+
+            const month = getRandomInt(1, 12);
+            const daysInMonth = new Date(year, month, 0).getDate();
+            const day = getRandomInt(1, daysInMonth);
+
+            const formatted = `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+            applyDateLogic(year, month, day, formatted);
+        }
+
+        function startReviewMode() {
+            if (stats.errorsList.length === 0) {
+                alert("Nenhum erro registrado para revisar! Continue treinando.");
+                return;
+            }
+            isReviewActive = true;
+            const errorObj = stats.errorsList[0];
+            applyDateLogic(errorObj.year, errorObj.month, errorObj.day, errorObj.text);
+        }
+
+        function startSprintMode() {
+            if (isSprintActive) return;
+            isReviewActive = false;
+            isSprintActive = true;
+            sprintTimeLeft = 60;
+            sprintScore = 0;
+
+            alert("Modo Sprint iniciado! Você tem 60 segundos para acertar o máximo de datas. Vamos lá!");
+            generateDate();
+
+            const timerDisplay = document.getElementById("timer-display");
+            if (timerInterval) clearInterval(timerInterval);
+
+            sprintInterval = setInterval(() => {
+                sprintTimeLeft--;
+                timerDisplay.innerText = `⚡ Tempo restante: ${sprintTimeLeft}s | Placar Sprint: ${sprintScore}`;
+
+                if (sprintTimeLeft <= 0) {
+                    clearInterval(sprintInterval);
+                    isSprintActive = false;
+                    alert(`Fim do Sprint! Você fez ${sprintScore} pontos em 60 segundos.`);
+                    document.getElementById("guess-container").style.display = "none";
+                    document.getElementById("content-display").className = "placeholder-text";
+                    document.getElementById("content-display").innerText = `Sprint encerrado! Pontuação: ${sprintScore} acertos.`;
+                    timerDisplay.style.display = "none";
+                }
+            }, 1000);
+        }
+
+        function setManualDate() {
+            if (isSprintActive) return;
+            isReviewActive = false;
+            const inputVal = document.getElementById("manual-date").value.trim();
+            const parts = inputVal.split('/');
+            
+            if (parts.length !== 3) {
+                alert("Por favor, digite a data no formato DD/MM/AAAA");
+                return;
+            }
+
+            let day = parseInt(parts[0], 10);
+            let month = parseInt(parts[1], 10);
+            let year = parseInt(parts[2], 10);
+
+            if (year < 100) {
+                year += 2000;
+            }
+
+            const formatted = `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+            applyDateLogic(year, month, day, formatted);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                setManualDate();
+            }
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (document.activeElement.id === 'manual-date') return;
+
+            if (event.code === 'Space') {
+                event.preventDefault();
+                if (!isSprintActive) generateDate();
+            } else if (event.key.toLowerCase() === 'r') {
+                if (!isSprintActive) revealAnswer();
+            } else if (['1', '2', '3', '4', '5', '6', '7'].includes(event.key)) {
+                const index = parseInt(event.key, 10) - 1;
+                checkGuess(diasSemana[index]);
+            }
+        });
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function recordAttempt(isCorrect) {
+            stats.total++;
+
+            if (isCorrect) {
+                stats.correct++;
+                stats.streak++;
+                stats.totalTimeCorrect += parseFloat(elapsedTime);
+
+                if (isReviewActive && stats.errorsList.length > 0) {
+                    stats.errorsList.shift();
+                }
+            } else {
+                stats.streak = 0;
+                if (!isReviewActive) {
+                    const exists = stats.errorsList.some(e => e.text === currentDateData.text);
+                    if (!exists) {
+                        stats.errorsList.push({
+                            day: currentDateData.day,
+                            month: currentDateData.month,
+                            year: currentDateData.year,
+                            text: currentDateData.text
+                        });
+                    }
+                }
+            }
+
+            stats.history.push(isCorrect);
+            if (stats.history.length > 10) {
+                stats.history.shift();
+            }
+            saveStats();
+        }
+
+        function revealAnswer() {
+            if (!currentDateData || !currentDateData.active || isSprintActive) return;
+            stopTimer();
+            currentDateData.active = false;
+
+            recordAttempt(false);
+
+            const answerBox = document.getElementById("answer-display");
+            answerBox.innerHTML = `Resposta: ${currentDateData.answer}<br><span style="font-size: 0.85rem; font-weight: normal; color: var(--text-secondary);">Tempo: ${elapsedTime}s</span>`;
+            answerBox.style.display = "block";
+            document.getElementById("timer-display").style.display = "none";
+        }
+
+        function checkGuess(selectedDay) {
+            if (!currentDateData || !currentDateData.active) return;
+            
+            const isCorrect = (selectedDay === currentDateData.answer);
+
+            if (isSprintActive) {
+                currentDateData.active = false;
+                if (isCorrect) {
+                    sprintScore++;
+                }
+                generateDate();
+                return;
+            }
+
+            stopTimer();
+            currentDateData.active = false;
+            recordAttempt(isCorrect);
+
+            const answerBox = document.getElementById("answer-display");
+            if (isCorrect) {
+                answerBox.innerHTML = `Correto! É ${currentDateData.answer}.<br><span style="font-size: 0.85rem; font-weight: normal; color: var(--text-secondary);">Tempo: ${elapsedTime}s</span>`;
+                answerBox.style.color = "var(--success)";
+            } else {
+                answerBox.innerHTML = `Incorreto. A resposta é ${currentDateData.answer}.<br><span style="font-size: 0.85rem; font-weight: normal; color: var(--text-secondary);">Tempo: ${elapsedTime}s</span>`;
+                answerBox.style.color = "#ef4444";
+            }
+            
+            answerBox.style.display = "block";
+            document.getElementById("timer-display").style.display = "none";
+
+            if (isReviewActive && stats.errorsList.length > 0) {
+                setTimeout(() => {
+                    startReviewMode();
+                }, 1500);
+            } else if (isReviewActive && stats.errorsList.length === 0) {
+                setTimeout(() => {
+                    alert("Parabéns! Você revisou e limpou todos os erros pendentes!");
+                    generateDate();
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>
